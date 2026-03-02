@@ -1,15 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr.R L - Literature Search AI</title>
+    <title>Dr.R L - Gastric Cancer Literature AI</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #581c87 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -22,7 +21,7 @@
             overflow: hidden;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
             padding: 40px;
             text-align: center;
@@ -39,21 +38,18 @@
             font-size: 16px;
             transition: border-color 0.3s;
         }
-        #searchInput:focus { outline: none; border-color: #667eea; }
+        #searchInput:focus { outline: none; border-color: #2563eb; }
         #searchBtn {
             padding: 15px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
             border: none;
             border-radius: 50px;
             font-size: 16px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s;
         }
-        #searchBtn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
+        #searchBtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4); }
         #searchBtn:disabled { opacity: 0.6; cursor: not-allowed; }
         .filters {
             display: grid;
@@ -65,92 +61,42 @@
             border-radius: 15px;
         }
         .filter-group { display: flex; flex-direction: column; }
-        .filter-group label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        .filter-group input, .filter-group select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .status {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-        }
+        .filter-group label { font-size: 12px; color: #666; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+        .filter-group input, .filter-group select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .status { padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
         .status.loading { display: block; background: #e3f2fd; color: #1976d2; border-left: 4px solid #1976d2; }
         .status.success { display: block; background: #e8f5e9; color: #388e3c; border-left: 4px solid #388e3c; }
         .status.error { display: block; background: #ffebee; color: #d32f2f; border-left: 4px solid #d32f2f; }
-        .results { display: none; padding: 20px; background: #f8f9fa; border-radius: 15px; }
+        .results { display: none; padding: 20px; }
         .results.show { display: block; }
         .result-item {
-            background: white;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-left: 4px solid #667eea;
+            background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid #2563eb;
         }
         .result-title { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 8px; }
         .result-meta { color: #666; font-size: 14px; margin-bottom: 10px; }
         .result-abstract { color: #555; line-height: 1.6; font-size: 14px; }
         .download-btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 20px;
-            background: #4caf50;
-            color: white;
-            text-decoration: none;
-            border-radius: 20px;
-            font-size: 14px;
-            transition: background 0.2s;
+            display: inline-block; margin-top: 10px; padding: 8px 20px;
+            background: #10b981; color: white; text-decoration: none;
+            border-radius: 20px; font-size: 14px;
         }
-        .download-btn:hover { background: #45a049; }
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 10px;
-            display: none;
-        }
+        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-top: 10px; display: none; }
         .progress-bar.show { display: block; }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #999;
-            font-size: 12px;
-            border-top: 1px solid #eee;
-        }
-        @media (max-width: 600px) {
-            .search-box { flex-direction: column; }
-            #searchBtn { width: 100%; }
-        }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #2563eb, #7c3aed); width: 0%; transition: width 0.3s; }
+        .footer { text-align: center; padding: 20px; color: #cbd5e1; font-size: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🔬 Dr.R L</h1>
-            <p>Literature Search AI Agent - Find & Download Research Papers</p>
+            <p>Gastric Cancer AI Agent - Precision Literature Search</p>
         </div>
         
         <div class="search-section">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Enter your research query (e.g., 'diabetes machine learning Rwanda')" autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Search Gastric Cancer research (e.g. 'H. pylori biomarkers' or 'immunotherapy')" autocomplete="off">
                 <button id="searchBtn" onclick="startSearch()">🔍 Search</button>
             </div>
             
@@ -160,34 +106,26 @@
                     <select id="maxResults">
                         <option value="10">10 papers</option>
                         <option value="20" selected>20 papers</option>
-                        <option value="30">30 papers</option>
                         <option value="50">50 papers</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>Year From</label>
-                    <input type="number" id="yearStart" placeholder="2020" min="1900" max="2030">
-                </div>
-                <div class="filter-group">
-                    <label>Year To</label>
-                    <input type="number" id="yearEnd" placeholder="2024" min="1900" max="2030">
+                    <label>Research Year</label>
+                    <input type="number" id="yearStart" placeholder="From Year (e.g. 2022)" min="1900">
                 </div>
             </div>
             
             <div id="status" class="status"></div>
-            
-            <div class="progress-bar" id="progressBar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
+            <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
             
             <div id="results" class="results">
-                <h3>Search Results</h3>
+                <h3 style="margin-bottom:15px;">Search Results</h3>
                 <div id="resultsList"></div>
             </div>
         </div>
         
         <div class="footer">
-            Dr.R L - Open Source Literature Search | Built with Flask & Python
+            Dr.R L | Gastric Cancer Research Tool | Powered by Llama & Groq
         </div>
     </div>
 
@@ -196,119 +134,68 @@
             const query = document.getElementById('searchInput').value.trim();
             const maxResults = document.getElementById('maxResults').value;
             const yearStart = document.getElementById('yearStart').value;
-            const yearEnd = document.getElementById('yearEnd').value;
             
             if (!query) {
-                showStatus('Please enter a search query', 'error');
+                showStatus('Please enter a search topic', 'error');
                 return;
             }
             
             document.getElementById('searchBtn').disabled = true;
-            showStatus('🔍 Searching across databases...', 'loading');
+            showStatus('🔍 AI Agent searching clinical databases...', 'loading');
             document.getElementById('progressBar').classList.add('show');
-            updateProgress(10);
+            updateProgress(30);
             
             try {
-                // Use absolute URL to avoid path issues
-                const apiUrl = window.location.origin + '/search';
+                // FIXED: Added trailing slash for Django URL consistency
+                const apiUrl = window.location.origin + '/search/';
                 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         query: query,
                         max_results: parseInt(maxResults),
-                        year_start: yearStart || null,
-                        year_end: yearEnd || null
+                        year_start: yearStart || null
                     })
                 });
                 
-                // Check if response is HTML before parsing JSON
-                const contentType = response.headers.get('content-type');
-                const text = await response.text();
-                
-                if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
-                    console.error('Server returned HTML error:', text.substring(0, 500));
-                    throw new Error('Server error - received HTML instead of JSON. Check Render logs.');
-                }
-                
-                if (contentType && contentType.includes('text/html')) {
-                    throw new Error('Server returned HTML instead of JSON');
-                }
-                
-                let data;
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.error('Invalid JSON response:', text);
-                    throw new Error('Server returned invalid JSON');
-                }
-                
-                if (!response.ok) {
-                    throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
-                }
+                const data = await response.json();
                 
                 if (data.success) {
                     updateProgress(100);
-                    showStatus(`✅ Found ${data.results_count || data.results.length} results!`, 'success');
-                    showResults(data.results || []);
+                    showStatus(`✅ Found ${data.results_count} research papers`, 'success');
+                    showResults(data.results);
                 } else {
                     throw new Error(data.error || 'Search failed');
                 }
-                
             } catch (error) {
-                console.error('Search error:', error);
                 showStatus('❌ Error: ' + error.message, 'error');
             } finally {
                 document.getElementById('searchBtn').disabled = false;
-                document.getElementById('progressBar').classList.remove('show');
+                setTimeout(() => document.getElementById('progressBar').classList.remove('show'), 500);
             }
         }
 
         function showResults(results) {
             const resultsDiv = document.getElementById('results');
             const resultsList = document.getElementById('resultsList');
-            
-            if (!results || results.length === 0) {
-                resultsList.innerHTML = '<p>No papers found. Try a different query.</p>';
-            } else {
-                resultsList.innerHTML = results.map(paper => `
-                    <div class="result-item">
-                        <div class="result-title">${escapeHtml(paper.title || 'No Title')}</div>
-                        <div class="result-meta">
-                            📚 ${paper.source || 'Unknown'} | 📅 ${paper.year || 'N/A'} | 👤 ${Array.isArray(paper.authors) ? paper.authors.join(', ') : (paper.authors || 'Unknown')}
-                        </div>
-                        <div class="result-abstract">${escapeHtml(paper.abstract ? paper.abstract.substring(0, 300) : 'No abstract available')}...</div>
-                        ${paper.url ? `<a href="${paper.url}" target="_blank" class="download-btn">View Paper</a>` : ''}
-                    </div>
-                `).join('');
-            }
-            
+            resultsList.innerHTML = results.length ? results.map(paper => `
+                <div class="result-item">
+                    <div class="result-title">${paper.title}</div>
+                    <div class="result-meta">📚 ${paper.source || 'Journal'} | 📅 ${paper.year || 'N/A'} | 👤 ${paper.authors || 'Unknown'}</div>
+                    <div class="result-abstract">${paper.abstract ? paper.abstract.substring(0, 350) + '...' : 'No abstract available'}</div>
+                    ${paper.url ? `<a href="${paper.url}" target="_blank" class="download-btn">Read Full Paper</a>` : ''}
+                </div>
+            `).join('') : '<p>No research found matching those criteria.</p>';
             resultsDiv.classList.add('show');
         }
 
-        function updateProgress(percent) {
-            document.getElementById('progressFill').style.width = percent + '%';
+        function updateProgress(p) { document.getElementById('progressFill').style.width = p + '%'; }
+        function showStatus(m, t) { 
+            const s = document.getElementById('status');
+            s.className = 'status ' + t; s.textContent = m; 
         }
-
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.className = 'status ' + type;
-            statusDiv.textContent = message;
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') startSearch();
-        });
+        document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') startSearch(); });
     </script>
 </body>
 </html>
