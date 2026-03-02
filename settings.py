@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-# Base directory
-BASE_DIR = Path(__file__).resolve().parent.parent
+# 1. FIX: Since you have no folders, the base directory is just 'parent'
+BASE_DIR = Path(__file__).resolve().parent
 
 # Security
 SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key-change-me")
@@ -19,7 +19,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "dr_r_app",
+    "dr_r_app", # This is your AI app
 ]
 
 # Middleware
@@ -32,8 +32,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
 
-# Root URLs
-ROOT_URLCONF = "dr_r_project.urls"
+# 2. FIX: Look for 'urls.py' in the root, not 'dr_r_project.urls'
+ROOT_URLCONF = "urls"
 
 # Templates
 TEMPLATES = [
@@ -52,10 +52,10 @@ TEMPLATES = [
     },
 ]
 
-# WSGI
-WSGI_APPLICATION = "dr_r_project.wsgi.application"
+# 3. FIX: Change this to look for 'wsgi.py' in the root
+WSGI_APPLICATION = "wsgi.application"
 
-# Database (simple SQLite)
+# Database
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -67,3 +67,6 @@ DATABASES = {
 STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# 4. ADD: Groq API Key for your Gastric Cancer AI
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
