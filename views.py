@@ -1,4 +1,3 @@
-# dr_r_app/views.py
 import os
 import sys
 import json
@@ -15,17 +14,15 @@ from django.views.decorators.http import require_http_methods
 # -------------------------
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-# Add current directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # -------------------------
 # Import your AI agent
 # -------------------------
 try:
+    # Since everything is in the root, we import directly
     from dr_r_agent import DrRLAgent
     logger.info("✅ DrRLAgent imported successfully")
     AGENT_AVAILABLE = True
@@ -40,7 +37,9 @@ except Exception as e:
 
 def index(request):
     """Render the main page"""
-    return render(request, 'dr_r_app/index.html')
+    # FIX: Changed 'dr_r_app/index.html' to just 'index.html' 
+    # because you don't have a dr_r_app folder.
+    return render(request, 'index.html')
 
 
 def health(request):
@@ -52,12 +51,10 @@ def health(request):
         'groq_key_set': bool(os.environ.get('GROQ_API_KEY'))
     })
 
-
 @csrf_exempt
 @require_http_methods(["POST", "OPTIONS"])
 def search(request):
-    """Search endpoint"""
-    # Handle CORS preflight
+    """Search endpoint for Gastric Cancer queries"""
     if request.method == 'OPTIONS':
         response = JsonResponse({'success': True})
         _add_cors_headers(response)
@@ -66,46 +63,24 @@ def search(request):
     if not AGENT_AVAILABLE:
         response = JsonResponse({
             'success': False,
-            'error': 'Search agent not available. Check server logs.'
+            'error': 'Search agent not available.'
         }, status=500)
         _add_cors_headers(response)
         return response
 
     try:
-        if request.content_type != 'application/json':
-            response = JsonResponse({
-                'success': False,
-                'error': 'Content-Type must be application/json'
-            }, status=400)
-            _add_cors_headers(response)
-            return response
-
         data = json.loads(request.body)
         query = data.get('query', '').strip()
         max_results = data.get('max_results', 20)
 
         if not query:
-            response = JsonResponse({
-                'success': False,
-                'error': 'Query cannot be empty'
-            }, status=400)
-            _add_cors_headers(response)
-            return response
+            return _error_response('Query cannot be empty', 400)
 
-        logger.info(f"Searching for: {query}")
+        logger.info(f"Searching Gastric Cancer data for: {query}")
 
-        try:
-            agent = DrRLAgent()
-            results = agent.search(query, max_results=max_results)
-        except Exception as e:
-            logger.error(f"Agent error: {e}")
-            response = JsonResponse({
-                'success': False,
-                'error': 'Search failed',
-                'details': str(e)
-            }, status=500)
-            _add_cors_headers(response)
-            return response
+        agent = DrRLAgent()
+        # Ensure your DrRLAgent class has a search method
+        results = agent.search(query, max_results=max_results)
 
         response = JsonResponse({
             'success': True,
@@ -116,22 +91,15 @@ def search(request):
         return response
 
     except Exception as e:
-        logger.error(f"Search endpoint error: {e}")
-        logger.error(traceback.format_exc())
-        response = JsonResponse({
-            'success': False,
-            'error': 'Internal server error',
-            'details': str(e)
-        }, status=500)
-        _add_cors_headers(response)
-        return response
+        logger.error(f"Search error: {e}")
+        return _error_response(str(e), 500)
 
-# -------------------------
-# CORS helper
-# -------------------------
+def _error_response(message, status_code):
+    response = JsonResponse({'success': False, 'error': message}, status=status_code)
+    return _add_cors_headers(response)
+
 def _add_cors_headers(response: HttpResponse):
-    """Add CORS headers to the response"""
     response["Access-Control-Allow-Origin"] = "*"
     response["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
-    response["Access-Control-Allow-Methods"] = "GET,PUT,POST,DELETE,OPTIONS"
+    response["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
     return response
