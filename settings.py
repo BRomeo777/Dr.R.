@@ -1,18 +1,19 @@
 import os
 from pathlib import Path
 
-# 1. FIX: Since you have no folders, the base directory is just 'parent'
+# 1. BASE DIRECTORY
+# Since settings.py is in the root, we only need one .parent
 BASE_DIR = Path(__file__).resolve().parent
 
 # Security
 SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key-change-me")
 
-# Keep DEBUG True for now so you can see any final errors in the browser
+# Keep DEBUG True for now so you can see errors in the browser if they happen
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-# Installed apps
+# 2. INSTALLED APPS
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -20,27 +21,30 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # REMOVED "dr_r_app" because the folder does not exist
+    # We do not list dr_r_app here because you have no app folder
 ]
 
-# Middleware
+# 3. MIDDLEWARE (Added WhiteNoise to prevent Internal Server Errors)
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # This handles static files on Render
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# 2. FIX: Look for 'urls.py' in the root folder
+# 4. URLS AND WSGI
 ROOT_URLCONF = "urls"
+WSGI_APPLICATION = "wsgi.application"
 
-# Templates
+# 5. TEMPLATES (Telling Django exactly where your folder is)
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"], # In case you have a templates folder
+        "DIRS": [os.path.join(BASE_DIR, 'templates')], 
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -53,10 +57,7 @@ TEMPLATES = [
     },
 ]
 
-# 3. FIX: Look for 'wsgi.py' in the root folder
-WSGI_APPLICATION = "wsgi.application"
-
-# Database
+# 6. DATABASE (Using SQLite for your PhD project)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -64,11 +65,13 @@ DATABASES = {
     }
 }
 
-# Static files
+# 7. STATIC FILES (Required for Render)
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# This allows WhiteNoise to compress files
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# 4. Groq API Key for your Gastric Cancer AI
+# 8. AI SETTINGS
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
