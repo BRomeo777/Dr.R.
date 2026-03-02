@@ -1,8 +1,12 @@
-# dr_r_project/urls.py
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+import views  # Import your views directly from the root directory
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('dr_r_app.urls')),  # Include app URLs
+    # Point the home page directly to the home function in your views.py
+    path('', views.home, name='home'), 
+    
+    # If you have a specific search/chat function for the AI:
+    # path('search/', views.search_view, name='search'),
 ]
