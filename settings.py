@@ -7,6 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # Security
 SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key-change-me")
 
+# Keep DEBUG True for now so you can see any final errors in the browser
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
@@ -19,7 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "dr_r_app", # This is your AI app
+    # REMOVED "dr_r_app" because the folder does not exist
 ]
 
 # Middleware
@@ -32,14 +33,14 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
 
-# 2. FIX: Look for 'urls.py' in the root, not 'dr_r_project.urls'
+# 2. FIX: Look for 'urls.py' in the root folder
 ROOT_URLCONF = "urls"
 
 # Templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"], # In case you have a templates folder
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -52,7 +53,7 @@ TEMPLATES = [
     },
 ]
 
-# 3. FIX: Change this to look for 'wsgi.py' in the root
+# 3. FIX: Look for 'wsgi.py' in the root folder
 WSGI_APPLICATION = "wsgi.application"
 
 # Database
@@ -65,8 +66,9 @@ DATABASES = {
 
 # Static files
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# 4. ADD: Groq API Key for your Gastric Cancer AI
+# 4. Groq API Key for your Gastric Cancer AI
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
