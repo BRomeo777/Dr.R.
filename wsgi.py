@@ -1,7 +1,7 @@
 import os
 from django.core.wsgi import get_wsgi_application
 
-# IMPORTANT: Remove the "dr_r_project." part here too
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings') 
+# We remove 'dr_r_project.' because the file is just named 'settings.py'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
 application = get_wsgi_application()
